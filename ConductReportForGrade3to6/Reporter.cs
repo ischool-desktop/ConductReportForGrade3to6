@@ -141,7 +141,7 @@ namespace ConductReportForGrade3to6
                 Dictionary<string, string> mergeDic = new Dictionary<string, string>();
                 mergeDic.Add("姓名", obj.Student.Name);
                 mergeDic.Add("班級", obj.Student.SeatNo + " Gr. " + obj.Class.Name);
-                mergeDic.Add("學年度", _schoolYear + 1911 + "");
+                mergeDic.Add("學年度", (_schoolYear + 1911) + "-" + (_schoolYear + 1912));
                 mergeDic.Add("學期", _semester == 1 ? _semester + "st" : _semester+"nd");
                 mergeDic.Add("班導師", student_class_teacher.ContainsKey(obj.StudentID) ? student_class_teacher[obj.StudentID] : "");
                 mergeDic.Add("校長", _校長);
@@ -159,13 +159,11 @@ namespace ConductReportForGrade3to6
                 bu.CellFormat.VerticalAlignment = CellVerticalAlignment.Center;
                 bu.CellFormat.Width = 30;
                 bu.Writeln("");
-                bu.Writeln("O = Outstanding");
-                bu.Writeln("S = Satisfactory");
-                bu.Writeln("N = Needs Improvement");
-                bu.Writeln("U = Unsatisfactory");
-                bu.Writeln("X = Not Available");
+                bu.Writeln("M = Meets expectations");
+                bu.Writeln("S = Meets needs with Support");
+                bu.Writeln("N = Not yet within expectations");
+                bu.Writeln("N/A = Not applicable");
                 
-
                 bu.InsertCell();
                 bu.CellFormat.Width = 120;
                 bu.CellFormat.VerticalAlignment = CellVerticalAlignment.Top;
