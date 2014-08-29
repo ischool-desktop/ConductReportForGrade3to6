@@ -162,7 +162,7 @@ namespace ConductReportForGrade3to6
                 bu.Writeln("M = Meets expectations");
                 bu.Writeln("S = Meets needs with Support");
                 bu.Writeln("N = Not yet within expectations");
-                bu.Writeln("N/A = Not applicable");
+                bu.Writeln("N/A = Not available");
                 
                 bu.InsertCell();
                 bu.CellFormat.Width = 120;
