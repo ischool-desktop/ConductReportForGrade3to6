@@ -98,20 +98,6 @@ namespace ConductReportForGrade3to6
         {
             string id = string.Join(",", _ids);
 
-            //取得指定學生的班級導師
-            Dictionary<string, string> student_class_teacher = new Dictionary<string, string>();
-            foreach (SemesterHistoryRecord r in K12.Data.SemesterHistory.SelectByStudentIDs(_ids))
-            {
-                foreach (SemesterHistoryItem item in r.SemesterHistoryItems)
-                {
-                    if (item.SchoolYear == _schoolYear && item.Semester == _semester)
-                    {
-                        if (!student_class_teacher.ContainsKey(item.RefStudentID))
-                            student_class_teacher.Add(item.RefStudentID, item.Teacher);
-                    }
-                }
-            }
-
             //取得指定學生conduct record
             List<ConductRecord> records = _A.Select<ConductRecord>("ref_student_id in (" + id + ") and school_year=" + _schoolYear + " and semester=" + _semester + " and term is null");
 
@@ -131,6 +117,47 @@ namespace ConductReportForGrade3to6
 
             foreach (string group in _common_template.Keys)
                 _common_template[group].Sort(Sorting);
+
+            //取得缺席天數
+            DataTable absence_dt = _Q.Select("select id from _udt_table where name='ischool.elementaryabsence'");
+            if (absence_dt.Rows.Count > 0)
+            {
+                string str = string.Format("select ref_student_id,personal_days,sick_days from $ischool.elementaryabsence where ref_student_id in ({0}) and school_year={1} and semester={2}", id, _schoolYear, _semester);
+                absence_dt = _Q.Select(str);
+
+                foreach (DataRow row in absence_dt.Rows)
+                {
+                    string sid = row["ref_student_id"] + "";
+                    string pd = row["personal_days"] + "";
+                    string sd = row["sick_days"] + "";
+
+                    if (student_conduct.ContainsKey(sid))
+                    {
+                        student_conduct[sid].PersonalDays = pd;
+                        student_conduct[sid].SickDays = sd;
+                    }
+                }
+            }
+
+            //取得指定學生的班級導師
+            Dictionary<string, string> student_class_teacher = new Dictionary<string, string>();
+            foreach (SemesterHistoryRecord r in K12.Data.SemesterHistory.SelectByStudentIDs(_ids))
+            {
+                foreach (SemesterHistoryItem item in r.SemesterHistoryItems)
+                {
+                    if (item.SchoolYear == _schoolYear && item.Semester == _semester)
+                    {
+                        if (!student_class_teacher.ContainsKey(item.RefStudentID))
+                            student_class_teacher.Add(item.RefStudentID, item.Teacher);
+
+                        //上課天數
+                        if (student_conduct.ContainsKey(r.RefStudentID))
+                        {
+                            student_conduct[r.RefStudentID].SchoolDays = item.SchoolDayCount + "";
+                        }
+                    }
+                }
+            }
 
 
             //開始列印
@@ -283,11 +310,11 @@ namespace ConductReportForGrade3to6
                 bu.Font.Bold = true;
                 bu.InsertCell();
                 bu.CellFormat.Width = 75;
-                bu.Write("TOTAL Days of School:");
+                bu.Write("TOTAL Days of School: " + obj.SchoolDays);
 
                 bu.InsertCell();
                 bu.CellFormat.Width = 75;
-                bu.Writeln("TOTAL Days of Absence:");
+                bu.Writeln("TOTAL Days of Absence: " + obj.GetTotalAbsence());
                 bu.Write("(Recorded by one week before the final exam.)");
 
                 bu.EndRow();
@@ -396,6 +423,7 @@ namespace ConductReportForGrade3to6
             public string StudentID;
             public StudentRecord Student;
             public ClassRecord Class;
+            public string PersonalDays, SickDays, SchoolDays; 
 
             public ConductObj(ConductRecord record)
             {
@@ -446,6 +474,16 @@ namespace ConductReportForGrade3to6
                             ConductGrade.Add(domain + "_" + group + "_" + title, grade);
                     }
                 }
+            }
+
+            public int GetTotalAbsence()
+            {
+                int p = 0;
+                int s = 0;
+                int.TryParse(PersonalDays, out p);
+                int.TryParse(SickDays, out s);
+
+                return p + s;
             }
         }
     }
