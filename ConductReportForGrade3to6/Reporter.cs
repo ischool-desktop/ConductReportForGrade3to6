@@ -159,12 +159,33 @@ namespace ConductReportForGrade3to6
                 }
             }
 
-
             //開始列印
             Document doc = new Document();
 
-            foreach (ConductObj obj in student_conduct.Values)
+            //排序
+            List<ConductObj> sortList = student_conduct.Values.ToList();
+
+            sortList.Sort(delegate(ConductObj x, ConductObj y)
             {
+                string xx = x.Class.Name + "";
+                xx += x.Student.SeatNo + "";
+                xx += x.Student.Name + "";
+
+                string yy = y.Class.Name + "";
+                yy += y.Student.SeatNo + "";
+                yy += y.Student.Name + "";
+
+                return xx.CompareTo(yy);
+            });
+
+            List<string> sortIDs = sortList.Select(x => x.Student.ID).ToList();
+
+            //foreach (ConductObj obj in student_conduct.Values)
+            foreach (string student_id in sortIDs)
+            {
+                //不應該會爆炸
+                ConductObj obj = student_conduct[student_id];
+
                 Dictionary<string, string> mergeDic = new Dictionary<string, string>();
                 mergeDic.Add("姓名", obj.Student.Name);
                 mergeDic.Add("班級", obj.Student.SeatNo + " Gr. " + obj.Class.Name);
@@ -253,7 +274,7 @@ namespace ConductReportForGrade3to6
 
                             bu.InsertCell();
                             bu.CellFormat.Width = 10;
-                            string grade = obj.ConductGrade.ContainsKey(key) ? obj.ConductGrade[key] : "";
+                            string grade = obj.ConductGrade.ContainsKey(key) ? obj.ConductGrade[key] : "/";
                             bu.Write(grade);
                             bu.ParagraphFormat.Alignment = ParagraphAlignment.Center;
                         }
