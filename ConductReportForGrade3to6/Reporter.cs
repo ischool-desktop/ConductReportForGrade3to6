@@ -167,13 +167,13 @@ namespace ConductReportForGrade3to6
 
             sortList.Sort(delegate(ConductObj x, ConductObj y)
             {
-                string xx = x.Class.Name + "";
-                xx += x.Student.SeatNo + "";
-                xx += x.Student.Name + "";
+                string xx = (x.Class.Name + "").PadLeft(20, '0');
+                xx += (x.Student.SeatNo + "").PadLeft(10, '0');
+                xx += (x.Student.Name + "").PadLeft(20,'0');
 
-                string yy = y.Class.Name + "";
-                yy += y.Student.SeatNo + "";
-                yy += y.Student.Name + "";
+                string yy = (y.Class.Name + "").PadLeft(20, '0');
+                yy += (y.Student.SeatNo + "").PadLeft(10, '0');
+                yy += (y.Student.Name + "").PadLeft(20, '0');
 
                 return xx.CompareTo(yy);
             });
