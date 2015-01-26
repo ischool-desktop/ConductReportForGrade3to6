@@ -40,8 +40,8 @@ namespace ConductReportForGrade3to6
             _A = new AccessHelper();
             _Q = new QueryHelper();
             _ids = ids;
-            _hrt_template = new Dictionary<string, List<string>>();
-            _common_template = new Dictionary<string, List<string>>();
+            //_hrt_template = new Dictionary<string, List<string>>();
+            //_common_template = new Dictionary<string, List<string>>();
             _SubjToDomain = new Dictionary<string, string>();
             _校長 = K12.Data.School.Configuration["學校資訊"].PreviousData.SelectSingleNode("ChancellorChineseName").InnerText;
             _主任 = K12.Data.School.Configuration["學校資訊"].PreviousData.SelectSingleNode("EduDirectorName").InnerText;
@@ -65,7 +65,7 @@ namespace ConductReportForGrade3to6
             //讀取上次主任姓名
             //txtDean.Text = Properties.Settings.Default.Dean;
 
-            LoadTemplate();
+            //LoadTemplate();
             SetSubjectMapping();
         }
 
@@ -112,11 +112,11 @@ namespace ConductReportForGrade3to6
             }
 
             //排序tempalte的group及item
-            foreach (string group in _hrt_template.Keys)
-                _hrt_template[group].Sort(Sorting);
+            //foreach (string group in _hrt_template.Keys)
+            //    _hrt_template[group].Sort(Sorting);
 
-            foreach (string group in _common_template.Keys)
-                _common_template[group].Sort(Sorting);
+            //foreach (string group in _common_template.Keys)
+            //    _common_template[group].Sort(Sorting);
 
             //取得缺席天數
             DataTable absence_dt = _Q.Select("select id from _udt_table where name='ischool.elementaryabsence'");
@@ -185,6 +185,17 @@ namespace ConductReportForGrade3to6
             {
                 //不應該會爆炸
                 ConductObj obj = student_conduct[student_id];
+
+                obj.SetTemplate();
+                _hrt_template = obj.HrtTemplate;
+                _common_template = obj.CommonTemplate;
+
+                //排序tempalte的group及item
+                foreach (string group in _hrt_template.Keys)
+                    _hrt_template[group].Sort(Sorting);
+
+                foreach (string group in _common_template.Keys)
+                    _common_template[group].Sort(Sorting);
 
                 Dictionary<string, string> mergeDic = new Dictionary<string, string>();
                 mergeDic.Add("姓名", obj.Student.Name);
@@ -380,44 +391,44 @@ namespace ConductReportForGrade3to6
             //Properties.Settings.Default.Save();
         }
 
-        private void LoadTemplate()
-        {
-            List<ConductSetting> list = _A.Select<ConductSetting>("grade=6");
-            if (list.Count > 0)
-            {
-                ConductSetting setting = list[0];
+        //private void LoadTemplate()
+        //{
+        //    List<ConductSetting> list = _A.Select<ConductSetting>("grade=6");
+        //    if (list.Count > 0)
+        //    {
+        //        ConductSetting setting = list[0];
 
-                XmlDocument xdoc = new XmlDocument();
-                if (!string.IsNullOrWhiteSpace(setting.Conduct))
-                    xdoc.LoadXml(setting.Conduct);
+        //        XmlDocument xdoc = new XmlDocument();
+        //        if (!string.IsNullOrWhiteSpace(setting.Conduct))
+        //            xdoc.LoadXml(setting.Conduct);
 
-                foreach (XmlElement elem in xdoc.SelectNodes("//Conduct[@Common]"))
-                {
-                    string group = elem.GetAttribute("Group");
-                    bool common = elem.GetAttribute("Common") == "True" ? true : false;
+        //        foreach (XmlElement elem in xdoc.SelectNodes("//Conduct[@Common]"))
+        //        {
+        //            string group = elem.GetAttribute("Group");
+        //            bool common = elem.GetAttribute("Common") == "True" ? true : false;
 
-                    foreach (XmlElement item in elem.SelectNodes("Item"))
-                    {
-                        string title = item.GetAttribute("Title");
+        //            foreach (XmlElement item in elem.SelectNodes("Item"))
+        //            {
+        //                string title = item.GetAttribute("Title");
 
-                        if (common)
-                        {
-                            if (!_common_template.ContainsKey(group))
-                                _common_template.Add(group, new List<string>());
+        //                if (common)
+        //                {
+        //                    if (!_common_template.ContainsKey(group))
+        //                        _common_template.Add(group, new List<string>());
 
-                            _common_template[group].Add(title);
-                        }
-                        else
-                        {
-                            if (!_hrt_template.ContainsKey(group))
-                                _hrt_template.Add(group, new List<string>());
+        //                    _common_template[group].Add(title);
+        //                }
+        //                else
+        //                {
+        //                    if (!_hrt_template.ContainsKey(group))
+        //                        _hrt_template.Add(group, new List<string>());
 
-                            _hrt_template[group].Add(title);
-                        }
-                    }
-                }
-            }
-        }
+        //                    _hrt_template[group].Add(title);
+        //                }
+        //            }
+        //        }
+        //    }
+        //}
 
         private void btnExit_Click(object sender, EventArgs e)
         {
@@ -444,7 +455,10 @@ namespace ConductReportForGrade3to6
             public string StudentID;
             public StudentRecord Student;
             public ClassRecord Class;
-            public string PersonalDays, SickDays, SchoolDays; 
+            public string PersonalDays, SickDays, SchoolDays;
+
+            public Dictionary<string, List<string>> HrtTemplate = new Dictionary<string, List<string>>();
+            public Dictionary<string, List<string>> CommonTemplate = new Dictionary<string, List<string>>();
 
             public ConductObj(ConductRecord record)
             {
@@ -493,6 +507,23 @@ namespace ConductReportForGrade3to6
 
                         if (!ConductGrade.ContainsKey(domain + "_" + group + "_" + title))
                             ConductGrade.Add(domain + "_" + group + "_" + title, grade);
+
+                        if (domain == "Homeroom")
+                        {
+                            if (!HrtTemplate.ContainsKey(group))
+                                HrtTemplate.Add(group, new List<string>());
+
+                            if (!HrtTemplate[group].Contains(title))
+                                HrtTemplate[group].Add(title);
+                        }
+                        else
+                        {
+                            if (!CommonTemplate.ContainsKey(group))
+                                CommonTemplate.Add(group, new List<string>());
+
+                            if (!CommonTemplate[group].Contains(title))
+                                CommonTemplate[group].Add(title);
+                        }
                     }
                 }
             }
@@ -505,6 +536,15 @@ namespace ConductReportForGrade3to6
                 int.TryParse(SickDays, out s);
 
                 return p + s;
+            }
+
+            public void SetTemplate()
+            {
+                foreach (string group in CommonTemplate.Keys)
+                {
+                    if (HrtTemplate.ContainsKey(group))
+                        HrtTemplate.Remove(group);
+                }
             }
         }
     }
