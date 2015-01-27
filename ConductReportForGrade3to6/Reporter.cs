@@ -540,10 +540,21 @@ namespace ConductReportForGrade3to6
 
             public void SetTemplate()
             {
+                //將CommonTemplate有的group從HrtTemplate移除
                 foreach (string group in CommonTemplate.Keys)
                 {
                     if (HrtTemplate.ContainsKey(group))
+                    {
+                        //將CommonTemplate[group]沒有的item加入
+                        foreach (string item in HrtTemplate[group])
+                        {
+                            if (!CommonTemplate[group].Contains(item))
+                                CommonTemplate[group].Add(item);
+                        }
+
                         HrtTemplate.Remove(group);
+                    }
+                        
                 }
             }
         }
