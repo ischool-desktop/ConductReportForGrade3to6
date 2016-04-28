@@ -1,9 +1,0 @@
-D:\GitHub2\ConductReportForGrade3to6\ConductReportForGrade3to6\bin\Debug\ConductReportForGrade3to6.dll
-D:\GitHub2\ConductReportForGrade3to6\ConductReportForGrade3to6\bin\Debug\ConductReportForGrade3to6.pdb
-D:\GitHub2\ConductReportForGrade3to6\ConductReportForGrade3to6\obj\Debug\ConductReportForGrade3to6.csprojResolveAssemblyReference.cache
-D:\GitHub2\ConductReportForGrade3to6\ConductReportForGrade3to6\obj\Debug\ConductReportForGrade3to6.Properties.Resources.resources
-D:\GitHub2\ConductReportForGrade3to6\ConductReportForGrade3to6\obj\Debug\ConductReportForGrade3to6.Reporter.resources
-D:\GitHub2\ConductReportForGrade3to6\ConductReportForGrade3to6\obj\Debug\ConductReportForGrade3to6.csproj.GenerateResource.Cache
-D:\GitHub2\ConductReportForGrade3to6\ConductReportForGrade3to6\obj\Debug\ConductReportForGrade3to6.dll
-D:\GitHub2\ConductReportForGrade3to6\ConductReportForGrade3to6\obj\Debug\ConductReportForGrade3to6.pdb
-D:\GitHub2\ConductReportForGrade3to6\ConductReportForGrade3to6\bin\Debug\ConductReportForGrade3to6.dll.config
